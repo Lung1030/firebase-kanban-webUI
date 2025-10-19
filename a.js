@@ -1,13 +1,12 @@
 // --- 步驟 1: Firebase 初始化 ---
 // 你的 Firebase 設定 (來自你的檔案) [cite: uploaded:a.js]
 const firebaseConfig = {
-  apiKey: "AIzaSyDy5Q_dyP4BXZq67gYdy-t9IC4c2hTPDAA",
-  authDomain: "my-kanban-project-d60ad.firebaseapp.com",
-  projectId: "my-kanban-project-d60ad",
-  storageBucket: "my-kanban-project-d60ad.firebasestorage.app",
-  messagingSenderId: "640015230287",
-  appId: "1:640015230287:web:62ec283a7eed070b63913a",
-  measurementId: "G-NBVV3PZ2J5"
+  apiKey: "YOUR_API_KEY", // 貼上你的 apiKey
+  authDomain: "YOUR_AUTH_DOMAIN", // 貼上你的 authDomain
+  projectId: "YOUR_PROJECT_ID", // 貼上你的 projectId
+  storageBucket: "YOUR_STORAGE_BUCKET",
+  messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
+  appId: "YOUR_APP_ID"
 };
 
 // 初始化 Firebase
@@ -243,4 +242,5 @@ function closeTutorial() {
         highlightedCard.classList.remove('tutorial-highlight');
     }
 }
+
 
