@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Firebase 即時任務看板</title>
+    <!-- 引入 Google Fonts 讓字體更柔和 -->
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <!-- 驗證區塊 -->
+    <div id="auth-container" class="container">
+        <div class="auth-card">
+            <h1>我的任務看板</h1>
+            <p>請登入或註冊以繼續</p>
+            <div class="auth-form">
+                <input type="email" id="email-input" placeholder="電子郵件">
+                <input type="password" id="password-input" placeholder="密碼">
+                <div class="auth-buttons">
+                    <button id="login-btn" class="btn-primary">登入</button>
+                    <button id="register-btn" class="btn-secondary">註冊</button>
+                </div>
+                <p id="auth-error" class="error-message"></p>
+            </div>
+        </div>
+    </div>
+
+    <!-- 主內容區塊 (預設隱藏) -->
+    <div id="main-container" class="container hidden">
+        <header class="main-header">
+            <div id="user-info">你好，訪客</div>
+            <button id="logout-btn" class="btn-secondary">登出</button>
+        </header>
+        
+        <form class="add-task-form">
+            <input type="text" id="task-title-input" placeholder="新增一個新任務...">
+            <button id="add-task-btn" type="submit" class="btn-add">+</button>
+        </form>
+
+        <div class="kanban-board">
+            <!-- 待處理欄位 -->
+            <div class="kanban-column" id="todo-column" data-status="todo">
+                <h2 class="column-header todo">待處理</h2>
+                <div class="task-cards-container" id="todo-cards"></div>
+            </div>
+            <!-- 進行中欄位 -->
+            <div class="kanban-column" id="inprogress-column" data-status="inprogress">
+                <h2 class="column-header inprogress">進行中</h2>
+                <div class="task-cards-container" id="inprogress-cards"></div>
+            </div>
+            <!-- 已完成欄位 -->
+            <div class="kanban-column" id="done-column" data-status="done">
+                <h2 class="column-header done">已完成</h2>
+                <div class="task-cards-container" id="done-cards"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ★ 新增功能：引導式教學區塊 (預設隱藏) -->
+    <div id="tutorial-overlay" class="hidden">
+        <div id="tutorial-tooltip">
+            <div id="tutorial-hand">👋</div>
+            <p>太棒了！你新增了第一個任務。<br>試著 **按住並拖曳** 這張卡片到「進行中」看看！</p>
+            <button id="tutorial-close-btn">知道了</button>
+        </div>
+    </div>
+
+    <!-- Firebase SDK (使用 CDN 引入) -->
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
+    
+    <!-- 你自己的 JavaScript 檔案 -->
+    <script src="a.js"></script>
+</body>
+</html>
+

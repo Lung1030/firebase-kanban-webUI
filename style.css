@@ -1,0 +1,203 @@
+/* *
+ * 全新漸層 + 玻璃擬態 (Glassmorphism) 設計
+ * - 柔和的漸層背景
+ * - 半透明、模糊的玻璃效果容器
+ * - 更精緻的陰影和動態效果
+ * - ★ 新增引導式教學樣式
+ */
+
+/* --- 基本設定 --- */
+:root {
+    --color-primary: #0079bf;
+    --color-primary-dark: #026aa7;
+    --color-text-dark: #172b4d;
+    --color-text-light: #42526e;
+    --color-background-glass: rgba(255, 255, 255, 0.85);
+    --color-background-glass-heavy: rgba(255, 255, 255, 0.95);
+    --color-border-glass: rgba(255, 255, 255, 0.4);
+    --shadow-light: 0 1px 3px rgba(0,0,0,0.1);
+    --shadow-medium: 0 4px 12px rgba(0,0,0,0.1);
+    --border-radius-s: 4px;
+    --border-radius-m: 12px;
+    
+    --color-todo: #4c9aff;
+    --color-inprogress: #f59f00;
+    --color-done: #5aac44;
+}
+
+body {
+    font-family: 'Roboto', 'Helvetica Neue', Arial, sans-serif;
+    background: linear-gradient(120deg, #89f7fe 0%, #66a6ff 100%);
+    background-attachment: fixed;
+    margin: 0;
+    padding: 20px;
+    color: var(--color-text-dark);
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    min-height: 100vh;
+}
+
+* { box-sizing: border-box; }
+.container { width: 100%; max-width: 1200px; transition: opacity 0.3s ease-in-out; }
+.hidden { display: none !important; opacity: 0; }
+
+/* --- 按鈕樣式 --- */
+button {
+    padding: 10px 15px; border: none; border-radius: var(--border-radius-s); font-size: 14px; font-weight: 500;
+    cursor: pointer; transition: all 0.2s ease; box-shadow: var(--shadow-light);
+}
+button:active { transform: translateY(1px); box-shadow: none; }
+.btn-primary { background-color: var(--color-primary); color: white; }
+.btn-primary:hover { background-color: var(--color-primary-dark); box-shadow: 0 2px 6px rgba(0,121,191,0.3); }
+.btn-secondary { background-color: #f0f2f5; color: var(--color-text-light); border: 1px solid #dfe1e6; }
+.btn-secondary:hover { background-color: #e2e4e9; }
+
+/* --- 驗證區塊 (玻璃效果) --- */
+.auth-card {
+    max-width: 400px; margin: 50px auto; background: var(--color-background-glass);
+    backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+    border: 1px solid var(--color-border-glass); padding: 30px 35px;
+    border-radius: var(--border-radius-m); box-shadow: var(--shadow-medium); text-align: center;
+}
+.auth-card h1 { margin-top: 0; }
+.auth-form input {
+    width: 100%; padding: 12px; margin-bottom: 15px; border: 1px solid #dfe1e6;
+    border-radius: var(--border-radius-s); font-size: 16px; background-color: #fafbfc;
+}
+.auth-form input:focus {
+    outline: none; border-color: var(--color-primary);
+    box-shadow: 0 0 0 2px rgba(0,121,191,0.2); background-color: white;
+}
+.auth-buttons { display: flex; gap: 10px; }
+.auth-buttons button { flex-grow: 1; padding: 12px; }
+.error-message { color: #de350b; margin-top: 15px; min-height: 20px; font-size: 14px; font-weight: 500; }
+
+/* --- 主內容區塊 --- */
+.main-header {
+    display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px;
+    background: var(--color-background-glass-heavy); backdrop-filter: blur(5px); -webkit-backdrop-filter: blur(5px);
+    border: 1px solid var(--color-border-glass); padding: 15px 25px; border-radius: var(--border-radius-m);
+    box-shadow: var(--shadow-light);
+}
+#user-info { font-weight: 500; font-size: 18px; word-break: break-all; }
+.add-task-form { background: rgba(235, 236, 240, 0.8); display: flex; gap: 10px; margin-bottom: 25px; }
+#task-title-input {
+    flex-grow: 1; padding: 12px 15px; border-radius: var(--border-radius-s); font-size: 16px;
+    background-color: var(--color-background-white); box-shadow: var(--shadow-light); border: none;
+}
+#task-title-input:focus { outline: none; box-shadow: 0 0 0 3px rgba(0,121,191,0.3); }
+.btn-add {
+    background-color: var(--color-primary); color: white; font-size: 24px;
+    font-weight: bold; padding: 0 18px; line-height: 1;
+}
+.btn-add:hover { background-color: var(--color-primary-dark); }
+
+/* --- 看板 (玻璃效果) --- */
+.kanban-board { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+.kanban-column {
+    background: rgba(235, 236, 240, 0.8); backdrop-filter: blur(5px); -webkit-backdrop-filter: blur(5px);
+    border: 1px solid rgba(255, 255, 255, 0.1); padding: 10px; border-radius: var(--border-radius-m);
+}
+.column-header {
+    font-size: 16px; font-weight: 700; padding: 10px 12px; margin-top: 0;
+    border-radius: var(--border-radius-s); color: white; text-shadow: 0 1px 1px rgba(0,0,0,0.1);
+}
+.column-header.todo { background-color: var(--color-todo); }
+.column-header.inprogress { background-color: var(--color-inprogress); }
+.column-header.done { background-color: var(--color-done); }
+.task-cards-container { min-height: 200px; padding: 5px; display: flex; flex-direction: column; gap: 10px; border-radius: var(--border-radius-s); }
+.task-card {
+    background-color: var(--color-background-white); padding: 12px 15px; border-radius: var(--border-radius-s);
+    box-shadow: var(--shadow-light); cursor: grab; display: flex; justify-content: space-between;
+    align-items: center; transition: box-shadow 0.2s, transform 0.2s;
+    position: relative; /* 為了高亮效果 */
+}
+.task-card:hover { box-shadow: 0 2px 5px rgba(0,0,0,0.15); transform: translateY(-2px); }
+.task-card.dragging { opacity: 0.8; transform: rotate(3deg); background-color: #e6efff; box-shadow: 0 4px 8px rgba(0,0,0,0.2); }
+.task-card-title { font-size: 15px; line-height: 1.4; word-break: break-word; }
+.delete-task-btn {
+    background: none; border: none; color: #abb2bf; cursor: pointer; font-size: 18px;
+    padding: 5px; opacity: 0; transition: opacity 0.2s, color 0.2s;
+}
+.task-card:hover .delete-task-btn { opacity: 1; }
+.delete-task-btn:hover { color: #de350b; }
+
+/* --- ★ 新增功能：引導式教學樣式 --- */
+#tutorial-overlay {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background-color: rgba(0, 0, 0, 0.7);
+    z-index: 999;
+    display: block; /* 預設 block，由 JS 控制 hidden class */
+    opacity: 1;
+    transition: opacity 0.3s ease-in-out;
+}
+
+/* 高亮顯示的卡片 */
+.tutorial-highlight {
+    z-index: 1000; /* 確保在高亮遮罩之上 */
+    box-shadow: 0 0 0 4px var(--color-primary), 0 4px 12px rgba(0,0,0,0.3);
+}
+
+#tutorial-tooltip {
+    position: absolute; /* 由 JS 計算位置 */
+    background-color: var(--color-text-dark);
+    color: white;
+    padding: 20px;
+    border-radius: var(--border-radius-m);
+    width: 280px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+    z-index: 1001;
+    text-align: center;
+}
+
+#tutorial-tooltip p {
+    margin: 15px 0;
+    line-height: 1.5;
+}
+
+#tutorial-close-btn {
+    background-color: var(--color-primary);
+    color: white;
+    width: 100%;
+    padding: 12px;
+}
+
+/* 手勢動畫 */
+#tutorial-hand {
+    font-size: 40px;
+    animation: animate-drag 2.5s ease-in-out infinite;
+    position: absolute;
+    top: -20px;
+    left: 20px;
+}
+
+@keyframes animate-drag {
+    0%, 100% { transform: translate(0, 0) scale(1); opacity: 0; }
+    10% { transform: translate(0, 0) scale(1); opacity: 1; }
+    40% { transform: translate(150px, 10px) scale(0.9); }
+    50% { opacity: 1; }
+    60% { transform: translate(150px, 10px) scale(0.9); opacity: 0; }
+}
+
+
+/* --- 響應式設計 --- */
+@media (max-width: 768px) {
+    body { padding: 10px; }
+    .kanban-board { grid-template-columns: 1fr; }
+    .main-header { flex-direction: column; gap: 10px; }
+    #tutorial-tooltip {
+        /* 在手機上，將提示框固定在底部 */
+        bottom: 20px;
+        left: 50%;
+        transform: translateX(-50%);
+        top: auto;
+        right: auto;
+    }
+    #tutorial-hand {
+        display: none; /* 手機上空間不足，隱藏手勢 */
+    }
+}
+
