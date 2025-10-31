@@ -1,203 +1,452 @@
-/* *
+/**
  * 全新漸層 + 玻璃擬態 (Glassmorphism) 設計
  * - 柔和的漸層背景
  * - 半透明、模糊的玻璃效果容器
  * - 更精緻的陰影和動態效果
- * - ★ 新增引導式教學樣式
+ * - 新增引導式教學樣式
  */
 
-/* --- 基本設定 --- */
+/* 1. 基本設定與全局樣式
+-------------------------------------------------------------- */
 :root {
-    --color-primary: #0079bf;
-    --color-primary-dark: #026aa7;
-    --color-text-dark: #172b4d;
-    --color-text-light: #42526e;
-    --color-background-glass: rgba(255, 255, 255, 0.85);
-    --color-background-glass-heavy: rgba(255, 255, 255, 0.95);
-    --color-border-glass: rgba(255, 255, 255, 0.4);
-    --shadow-light: 0 1px 3px rgba(0,0,0,0.1);
-    --shadow-medium: 0 4px 12px rgba(0,0,0,0.1);
-    --border-radius-s: 4px;
-    --border-radius-m: 12px;
-    
-    --color-todo: #4c9aff;
-    --color-inprogress: #f59f00;
-    --color-done: #5aac44;
+  /* 定義整個網站的主題色票 */
+  --color-primary: #0079bf;
+  --color-primary-dark: #026aa7;
+  --color-text-dark: #172b4d;
+  --color-text-light: #42526e;
+
+  /* 玻璃擬態效果專用的顏色 */
+  --color-background-glass: rgba(255, 255, 255, 0.85); /* 輕度透明 */
+  --color-background-glass-heavy: rgba(255, 255, 255, 0.95); /* 重度透明 (接近不透) */
+  --color-border-glass: rgba(255, 255, 255, 0.4); /* 玻璃邊框的微妙光暈 */
+
+  /* 陰影效果 */
+  --shadow-light: 0 1px 3px rgba(0, 0, 0, 0.1);
+  --shadow-medium: 0 4px 12px rgba(0, 0, 0, 0.1);
+
+  /* 圓角大小 */
+  --border-radius-s: 4px;
+  --border-radius-m: 12px;
+
+  /* 看板狀態顏色 */
+  --color-todo: #4c9aff;
+  --color-inprogress: #f59f00;
+  --color-done: #5aac44;
 }
 
 body {
-    font-family: 'Roboto', 'Helvetica Neue', Arial, sans-serif;
-    background: linear-gradient(120deg, #89f7fe 0%, #66a6ff 100%);
-    background-attachment: fixed;
-    margin: 0;
-    padding: 20px;
-    color: var(--color-text-dark);
-    display: flex;
-    justify-content: center;
-    align-items: flex-start;
-    min-height: 100vh;
+  font-family: 'Roboto', 'Helvetica Neue', Arial, sans-serif;
+  /* 使用一個柔和的漸層作為背景 */
+  background: linear-gradient(120deg, #89f7fe 0%, #66a6ff 100%);
+  /* 固定背景，這樣頁面捲動時，漸層不會跟著跑 */
+  background-attachment: fixed;
+  margin: 0;
+  padding: 20px;
+  color: var(--color-text-dark);
+  display: flex;
+  justify-content: center;
+  align-items: flex-start; /* 讓內容從頂部開始，而不是垂直置中 */
+  min-height: 100vh;
 }
 
-* { box-sizing: border-box; }
-.container { width: 100%; max-width: 1200px; transition: opacity 0.3s ease-in-out; }
-.hidden { display: none !important; opacity: 0; }
+/* 推薦的 CSS 重設，讓所有元素的 padding 和 border 都被包含在 width/height 內 */
+* {
+  box-sizing: border-box;
+}
 
-/* --- 按鈕樣式 --- */
+.container {
+  width: 100%;
+  max-width: 1200px;
+  transition: opacity 0.3s ease-in-out;
+}
+
+/* * 通用的隱藏 class，常用於 JS 控制顯示/隱藏
+ * 使用 opacity 搭配 transition 可以做出淡入淡出效果
+ */
+.hidden {
+  display: none !important; /* !important 確保它絕對會隱藏 */
+  opacity: 0;
+}
+
+/* 2. 通用元件：按鈕
+-------------------------------------------------------------- */
 button {
-    padding: 10px 15px; border: none; border-radius: var(--border-radius-s); font-size: 14px; font-weight: 500;
-    cursor: pointer; transition: all 0.2s ease; box-shadow: var(--shadow-light);
+  padding: 10px 15px;
+  border: none;
+  border-radius: var(--border-radius-s);
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  /* 讓 hover 和 active 效果有過渡動畫 */
+  transition: all 0.2s ease;
+  box-shadow: var(--shadow-light);
 }
-button:active { transform: translateY(1px); box-shadow: none; }
-.btn-primary { background-color: var(--color-primary); color: white; }
-.btn-primary:hover { background-color: var(--color-primary-dark); box-shadow: 0 2px 6px rgba(0,121,191,0.3); }
-.btn-secondary { background-color: #f0f2f5; color: var(--color-text-light); border: 1px solid #dfe1e6; }
-.btn-secondary:hover { background-color: #e2e4e9; }
 
-/* --- 驗證區塊 (玻璃效果) --- */
+button:active {
+  /* 按下時給予一個小小的位移，更有回饋感 */
+  transform: translateY(1px);
+  box-shadow: none;
+}
+
+.btn-primary {
+  background-color: var(--color-primary);
+  color: white;
+}
+
+.btn-primary:hover {
+  background-color: var(--color-primary-dark);
+  /* 加上一點符合主題色的陰影，感覺更立體 */
+  box-shadow: 0 2px 6px rgba(0, 121, 191, 0.3);
+}
+
+.btn-secondary {
+  background-color: #f0f2f5;
+  color: var(--color-text-light);
+  border: 1px solid #dfe1e6;
+}
+
+.btn-secondary:hover {
+  background-color: #e2e4e9;
+}
+
+/* 3. 區塊：登入/驗證卡片 (玻璃擬態)
+-------------------------------------------------------------- */
 .auth-card {
-    max-width: 400px; margin: 50px auto; background: var(--color-background-glass);
-    backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
-    border: 1px solid var(--color-border-glass); padding: 30px 35px;
-    border-radius: var(--border-radius-m); box-shadow: var(--shadow-medium); text-align: center;
+  max-width: 400px;
+  margin: 50px auto; /* 上下 50px，左右自動置中 */
+
+  /* 玻璃擬態的基礎：半透明背景 */
+  background: var(--color-background-glass);
+  /* 關鍵：背景模糊效果，讓底下的漸層透出來 */
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px); /* 支援 Safari 瀏覽器 */
+
+  border: 1px solid var(--color-border-glass);
+  padding: 30px 35px;
+  border-radius: var(--border-radius-m);
+  box-shadow: var(--shadow-medium);
+  text-align: center;
 }
-.auth-card h1 { margin-top: 0; }
+
+.auth-card h1 {
+  margin-top: 0;
+}
+
 .auth-form input {
-    width: 100%; padding: 12px; margin-bottom: 15px; border: 1px solid #dfe1e6;
-    border-radius: var(--border-radius-s); font-size: 16px; background-color: #fafbfc;
+  width: 100%;
+  padding: 12px;
+  margin-bottom: 15px;
+  border: 1px solid #dfe1e6;
+  border-radius: var(--border-radius-s);
+  font-size: 16px;
+  background-color: #fafbfc;
 }
+
 .auth-form input:focus {
-    outline: none; border-color: var(--color-primary);
-    box-shadow: 0 0 0 2px rgba(0,121,191,0.2); background-color: white;
+  outline: none; /* 拿掉瀏覽器預設的醜醜藍框 */
+  border-color: var(--color-primary);
+  /* 用 box-shadow 做出更漂亮的 focus 效果 */
+  box-shadow: 0 0 0 2px rgba(0, 121, 191, 0.2);
+  background-color: white;
 }
-.auth-buttons { display: flex; gap: 10px; }
-.auth-buttons button { flex-grow: 1; padding: 12px; }
-.error-message { color: #de350b; margin-top: 15px; min-height: 20px; font-size: 14px; font-weight: 500; }
 
-/* --- 主內容區塊 --- */
+.auth-buttons {
+  display: flex;
+  gap: 10px;
+}
+
+.auth-buttons button {
+  flex-grow: 1; /* 讓兩個按鈕平分寬度 */
+  padding: 12px;
+}
+
+.error-message {
+  color: #de350b; /* 錯誤訊息使用紅色 */
+  margin-top: 15px;
+  min-height: 20px; /* 即使沒錯誤，也佔住高度，避免版面跳動 */
+  font-size: 14px;
+  font-weight: 500;
+}
+
+/* 4. 區塊：主內容 (標頭與新增任務)
+-------------------------------------------------------------- */
 .main-header {
-    display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px;
-    background: var(--color-background-glass-heavy); backdrop-filter: blur(5px); -webkit-backdrop-filter: blur(5px);
-    border: 1px solid var(--color-border-glass); padding: 15px 25px; border-radius: var(--border-radius-m);
-    box-shadow: var(--shadow-light);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 25px;
+
+  /* 這裡是比較不明顯的玻璃效果，讓標頭浮起來 */
+  background: var(--color-background-glass-heavy); /* 更不透明 */
+  backdrop-filter: blur(5px);
+  -webkit-backdrop-filter: blur(5px);
+
+  border: 1px solid var(--color-border-glass);
+  padding: 15px 25px;
+  border-radius: var(--border-radius-m);
+  box-shadow: var(--shadow-light);
 }
-#user-info { font-weight: 500; font-size: 18px; word-break: break-all; }
-.add-task-form { background: rgba(235, 236, 240, 0.8); display: flex; gap: 10px; margin-bottom: 25px; }
+
+#user-info {
+  font-weight: 500;
+  font-size: 18px;
+  word-break: break-all; /* 避免 user ID 太長而溢出 */
+}
+
+/* 新增任務的表單 */
+.add-task-form {
+  background: rgba(235, 236, 240, 0.8);
+  display: flex;
+  gap: 10px;
+  margin-bottom: 25px;
+}
+
 #task-title-input {
-    flex-grow: 1; padding: 12px 15px; border-radius: var(--border-radius-s); font-size: 16px;
-    background-color: var(--color-background-white); box-shadow: var(--shadow-light); border: none;
+  flex-grow: 1; /* 讓輸入框佔滿剩餘的空間 */
+  padding: 12px 15px;
+  border-radius: var(--border-radius-s);
+  font-size: 16px;
+  background-color: var(--color-background-white);
+  box-shadow: var(--shadow-light);
+  border: none;
 }
-#task-title-input:focus { outline: none; box-shadow: 0 0 0 3px rgba(0,121,191,0.3); }
+
+#task-title-input:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(0, 121, 191, 0.3);
+}
+
 .btn-add {
-    background-color: var(--color-primary); color: white; font-size: 24px;
-    font-weight: bold; padding: 0 18px; line-height: 1;
+  background-color: var(--color-primary);
+  color: white;
+  font-size: 24px;
+  font-weight: bold;
+  padding: 0 18px;
+  line-height: 1; /* 讓 "+" 號能更精確地垂直置中 */
 }
-.btn-add:hover { background-color: var(--color-primary-dark); }
 
-/* --- 看板 (玻璃效果) --- */
-.kanban-board { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+.btn-add:hover {
+  background-color: var(--color-primary-dark);
+}
+
+/* 5. 區塊：看板 (欄位與卡片)
+-------------------------------------------------------------- */
+.kanban-board {
+  display: grid;
+  /* 預設是三欄式佈局 */
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+}
+
 .kanban-column {
-    background: rgba(235, 236, 240, 0.8); backdrop-filter: blur(5px); -webkit-backdrop-filter: blur(5px);
-    border: 1px solid rgba(255, 255, 255, 0.1); padding: 10px; border-radius: var(--border-radius-m);
+  /* 欄位的背景，使用半透明的灰色調，也是一種玻璃擬態 */
+  background: rgba(235, 236, 240, 0.8);
+  backdrop-filter: blur(5px);
+  -webkit-backdrop-filter: blur(5px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 10px;
+  border-radius: var(--border-radius-m);
 }
+
 .column-header {
-    font-size: 16px; font-weight: 700; padding: 10px 12px; margin-top: 0;
-    border-radius: var(--border-radius-s); color: white; text-shadow: 0 1px 1px rgba(0,0,0,0.1);
+  font-size: 16px;
+  font-weight: 700;
+  padding: 10px 12px;
+  margin-top: 0;
+  border-radius: var(--border-radius-s);
+  color: white;
+  text-shadow: 0 1px 1px rgba(0, 0, 0, 0.1); /* 讓文字在色塊上更清晰 */
 }
-.column-header.todo { background-color: var(--color-todo); }
-.column-header.inprogress { background-color: var(--color-inprogress); }
-.column-header.done { background-color: var(--color-done); }
-.task-cards-container { min-height: 200px; padding: 5px; display: flex; flex-direction: column; gap: 10px; border-radius: var(--border-radius-s); }
+
+/* 幫不同狀態的標頭上色 */
+.column-header.todo {
+  background-color: var(--color-todo);
+}
+.column-header.inprogress {
+  background-color: var(--color-inprogress);
+}
+.column-header.done {
+  background-color: var(--color-done);
+}
+
+/* 裝載所有任務卡片的容器 */
+.task-cards-container {
+  min-height: 200px; /* 確保即使沒卡片，拖曳區域也存在 */
+  padding: 5px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  border-radius: var(--border-radius-s);
+}
+
 .task-card {
-    background-color: var(--color-background-white); padding: 12px 15px; border-radius: var(--border-radius-s);
-    box-shadow: var(--shadow-light); cursor: grab; display: flex; justify-content: space-between;
-    align-items: center; transition: box-shadow 0.2s, transform 0.2s;
-    position: relative; /* 為了高亮效果 */
+  background-color: var(--color-background-white);
+  padding: 12px 15px;
+  border-radius: var(--border-radius-s);
+  box-shadow: var(--shadow-light);
+  cursor: grab; /* 提示這東西可以拖曳 */
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  transition: box-shadow 0.2s, transform 0.2s;
+  position: relative; /* 為了高亮效果 (教學) 和刪除按鈕 */
 }
-.task-card:hover { box-shadow: 0 2px 5px rgba(0,0,0,0.15); transform: translateY(-2px); }
-.task-card.dragging { opacity: 0.8; transform: rotate(3deg); background-color: #e6efff; box-shadow: 0 4px 8px rgba(0,0,0,0.2); }
-.task-card-title { font-size: 15px; line-height: 1.4; word-break: break-word; }
+
+.task-card:hover {
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.15);
+  transform: translateY(-2px); /* 輕微上浮 */
+}
+
+.task-card.dragging {
+  /* 正在被拖曳的卡片樣式 */
+  opacity: 0.8;
+  transform: rotate(3deg); /* 增加一點傾斜，更有趣 */
+  background-color: #e6efff;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* 陰影更明顯 */
+}
+
+.task-card-title {
+  font-size: 15px;
+  line-height: 1.4;
+  word-break: break-word; /* 任務標題太長時自動換行 */
+}
+
 .delete-task-btn {
-    background: none; border: none; color: #abb2bf; cursor: pointer; font-size: 18px;
-    padding: 5px; opacity: 0; transition: opacity 0.2s, color 0.2s;
+  background: none;
+  border: none;
+  color: #abb2bf;
+  cursor: pointer;
+  font-size: 18px;
+  padding: 5px;
+  /* 平常隱藏，滑鼠移到卡片上才顯示 (提升介面簡潔度) */
+  opacity: 0;
+  transition: opacity 0.2s, color 0.2s;
 }
-.task-card:hover .delete-task-btn { opacity: 1; }
-.delete-task-btn:hover { color: #de350b; }
 
-/* --- ★ 新增功能：引導式教學樣式 --- */
+.task-card:hover .delete-task-btn {
+  opacity: 1;
+}
+
+.delete-task-btn:hover {
+  color: #de350b; /* 刪除按鈕用紅色提示 */
+}
+
+/* 6. 功能：引導式教學
+-------------------------------------------------------------- */
 #tutorial-overlay {
-    position: fixed;
-    top: 0; left: 0;
-    width: 100%; height: 100%;
-    background-color: rgba(0, 0, 0, 0.7);
-    z-index: 999;
-    display: block; /* 預設 block，由 JS 控制 hidden class */
-    opacity: 1;
-    transition: opacity 0.3s ease-in-out;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.7); /* 半透明黑色遮罩 */
+  z-index: 999;
+  /* 預設顯示，由 JS 加上 .hidden 來隱藏 */
+  display: block;
+  opacity: 1;
+  transition: opacity 0.3s ease-in-out;
 }
 
-/* 高亮顯示的卡片 */
+/* 被高亮顯示的元素 (例如教學中的第一張卡片) */
 .tutorial-highlight {
-    z-index: 1000; /* 確保在高亮遮罩之上 */
-    box-shadow: 0 0 0 4px var(--color-primary), 0 4px 12px rgba(0,0,0,0.3);
+  z-index: 1000; /* 必須在遮罩之上 */
+  /* 用一個明顯的 box-shadow 來框選 */
+  box-shadow: 0 0 0 4px var(--color-primary), 0 4px 12px rgba(0, 0, 0, 0.3);
 }
 
+/* 教學提示框 */
 #tutorial-tooltip {
-    position: absolute; /* 由 JS 計算位置 */
-    background-color: var(--color-text-dark);
-    color: white;
-    padding: 20px;
-    border-radius: var(--border-radius-m);
-    width: 280px;
-    box-shadow: 0 5px 15px rgba(0,0,0,0.3);
-    z-index: 1001;
-    text-align: center;
+  position: absolute; /* 由 JS 計算位置，放在高亮元素的旁邊 */
+  background-color: var(--color-text-dark);
+  color: white;
+  padding: 20px;
+  border-radius: var(--border-radius-m);
+  width: 280px;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+  z-index: 1001; /* 必須在所有東西之上 */
+  text-align: center;
 }
 
 #tutorial-tooltip p {
-    margin: 15px 0;
-    line-height: 1.5;
+  margin: 15px 0;
+  line-height: 1.5;
 }
 
 #tutorial-close-btn {
-    background-color: var(--color-primary);
-    color: white;
-    width: 100%;
-    padding: 12px;
+  background-color: var(--color-primary);
+  color: white;
+  width: 100%;
+  padding: 12px;
 }
 
-/* 手勢動畫 */
+/* 模擬拖曳的手勢動畫 */
 #tutorial-hand {
-    font-size: 40px;
-    animation: animate-drag 2.5s ease-in-out infinite;
-    position: absolute;
-    top: -20px;
-    left: 20px;
+  font-size: 40px;
+  animation: animate-drag 2.5s ease-in-out infinite;
+  position: absolute;
+  top: -20px;
+  left: 20px;
 }
 
 @keyframes animate-drag {
-    0%, 100% { transform: translate(0, 0) scale(1); opacity: 0; }
-    10% { transform: translate(0, 0) scale(1); opacity: 1; }
-    40% { transform: translate(150px, 10px) scale(0.9); }
-    50% { opacity: 1; }
-    60% { transform: translate(150px, 10px) scale(0.9); opacity: 0; }
+  /* * 模擬拖曳手勢的動畫：
+   * 0% - 10%: 手指淡入
+   * 40%:      手指移動到目的地 (150px, 10px)
+   * 50% - 60%: 手指在目的地淡出
+   * 100%:     回到原點，準備下次循環
+   */
+  0%,
+  100% {
+    transform: translate(0, 0) scale(1);
+    opacity: 0;
+  }
+  10% {
+    transform: translate(0, 0) scale(1);
+    opacity: 1;
+  }
+  40% {
+    transform: translate(150px, 10px) scale(0.9);
+  }
+  50% {
+    opacity: 1;
+  }
+  60% {
+    transform: translate(150px, 10px) scale(0.9);
+    opacity: 0;
+  }
 }
 
-
-/* --- 響應式設計 --- */
+/* 7. 響應式設計 (RWD)
+-------------------------------------------------------------- */
 @media (max-width: 768px) {
-    body { padding: 10px; }
-    .kanban-board { grid-template-columns: 1fr; }
-    .main-header { flex-direction: column; gap: 10px; }
-    #tutorial-tooltip {
-        /* 在手機上，將提示框固定在底部 */
-        bottom: 20px;
-        left: 50%;
-        transform: translateX(-50%);
-        top: auto;
-        right: auto;
-    }
-    #tutorial-hand {
-        display: none; /* 手機上空間不足，隱藏手勢 */
-    }
-}
+  /* 當螢幕寬度小於 768px (例如手機) 時 */
+  body {
+    padding: 10px;
+  }
 
+  /* 在手機上，看板從三欄變為單欄垂直排列 */
+  .kanban-board {
+    grid-template-columns: 1fr;
+  }
+
+  /* 標頭也改為垂直排列，因為水平空間不夠 */
+  .main-header {
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  /* 教學提示框固定在底部，更適合手機操作 */
+  #tutorial-tooltip {
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    /* 取消 JS 計算的絕對定位 */
+    top: auto;
+    right: auto;
+  }
+
+  /* 手機上空間有限，隱藏拖曳手勢動畫 */
+  #tutorial-hand {
+    display: none;
+  }
+}
